@@ -48,17 +48,19 @@ pub fn Rtt() type {
         }
 
         const DownChannel = struct {
-            pub const Error = error{};
+            pub const Error = error{EndOfStream};
             pub const Reader = std.io.Reader(DownChannel, Error, read);
 
             chan_num: u32,
 
             fn read(self: DownChannel, buf: []u8) DownChannel.Error!usize {
-                var i: usize = 0;
-                while (i == 0) {
-                    i += capi.SEGGER_RTT_Read(self.chan_num, buf.ptr, buf.len);
+                const nbytes = capi.SEGGER_RTT_Read(self.chan_num, buf.ptr, buf.len);
+
+                if (nbytes > 0) {
+                    return nbytes;
                 }
-                return i;
+
+                return Error.EndOfStream;
             }
 
             pub fn reader(self: DownChannel) Reader {
