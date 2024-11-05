@@ -1,4 +1,5 @@
 const std = @import("std");
+const config = @import("build_options");
 
 pub const capi = @cImport({
     @cInclude("SEGGER_RTT.h");
@@ -10,7 +11,7 @@ pub fn Rtt() type {
         const fmt = std.fmt;
         const Self = @This();
 
-        const NumOfChannels: comptime_int = capi.SEGGER_RTT_MAX_NUM_UP_BUFFERS;
+        const NumOfChannels = config.up_channels;
         channels: [NumOfChannels]Channel = undefined,
 
         pub fn print(self: *const Self, comptime fmt_str: []const u8, args: anytype) void {
@@ -18,7 +19,7 @@ pub fn Rtt() type {
             fmt.format(writer, fmt_str, args) catch unreachable;
         }
 
-        pub fn init() @This() {
+        pub fn init() Self {
             comptime std.debug.assert(NumOfChannels > 0);
             var self: @This() = .{};
             for (&self.channels, 0..) |*chan, i| {

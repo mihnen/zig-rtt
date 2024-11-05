@@ -4,10 +4,18 @@ pub const newlib = @import("gatz").newlib;
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+
+    const options = b.addOptions();
+
     const up_channels = b.option(u32, "up_channels", "How many up channels to allocate") orelse 1;
     const down_channels = b.option(u32, "down_channels", "How many up channels to allocate") orelse 1;
     const up_buffer_size = b.option(u32, "up_buffer_size", "Size of up buffers in bytes") orelse 1024;
     const down_buffer_size = b.option(u32, "down_buffer_size", "Size of down buffers in bytes") orelse 16;
+
+    options.addOption(u32, "up_channels", up_channels);
+    options.addOption(u32, "down_channels", down_channels);
+    options.addOption(u32, "up_buffer_size", up_buffer_size);
+    options.addOption(u32, "down_buffer_size", down_buffer_size);
 
     const lib = b.addStaticLibrary(.{
         .name = "segger_rtt_clib",
@@ -83,6 +91,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    mod.addOptions("build_options", options);
     mod.linkLibrary(lib);
 
     const headers_paths = .{
