@@ -4,6 +4,10 @@ pub const newlib = @import("gatz").newlib;
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+    const up_channels = b.option(u32, "up_channels", "How many up channels to allocate") orelse 1;
+    const down_channels = b.option(u32, "down_channels", "How many up channels to allocate") orelse 1;
+    const up_buffer_size = b.option(u32, "up_buffer_size", "Size of up buffers in bytes") orelse 1024;
+    const down_buffer_size = b.option(u32, "down_buffer_size", "Size of down buffers in bytes") orelse 16;
 
     const lib = b.addStaticLibrary(.{
         .name = "segger_rtt_clib",
@@ -13,6 +17,54 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
+
+    const up_channel_value = std.fmt.allocPrint(
+        b.allocator,
+        "{d}",
+        .{up_channels},
+    );
+
+    const down_channel_value = std.fmt.allocPrint(
+        b.allocator,
+        "{d}",
+        .{down_channels},
+    );
+
+    const up_buffer_size_value = std.fmt.allocPrint(
+        b.allocator,
+        "{d}",
+        .{up_buffer_size},
+    );
+
+    const down_buffer_size_value = std.fmt.allocPrint(
+        b.allocator,
+        "{d}",
+        .{down_buffer_size},
+    );
+
+    if (up_channel_value) |value| {
+        lib.defineCMacro("SEGGER_RTT_MAX_NUM_UP_BUFFERS", value);
+    } else |err| {
+        std.debug.print("{s}\n", .{@errorName(err)});
+    }
+
+    if (down_channel_value) |value| {
+        lib.defineCMacro("SEGGER_RTT_MAX_NUM_DOWN_BUFFERS", value);
+    } else |err| {
+        std.debug.print("{s}\n", .{@errorName(err)});
+    }
+
+    if (up_buffer_size_value) |value| {
+        lib.defineCMacro("BUFFER_SIZE_UP", value);
+    } else |err| {
+        std.debug.print("{s}\n", .{@errorName(err)});
+    }
+
+    if (down_buffer_size_value) |value| {
+        lib.defineCMacro("BUFFER_SIZE_DOWN", value);
+    } else |err| {
+        std.debug.print("{s}\n", .{@errorName(err)});
+    }
 
     newlib.addIncludeHeadersAndSystemPathsTo(b, target, lib) catch |err| switch (err) {
         newlib.Error.CompilerNotFound => {

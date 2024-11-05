@@ -1,15 +1,13 @@
 const std = @import("std");
 
-const atomic = std.atomic;
-const debug = std.debug;
-const fmt = std.fmt;
-
 pub const capi = @cImport({
     @cInclude("SEGGER_RTT.h");
 });
 
 pub fn Rtt() type {
     return struct {
+        const debug = std.debug;
+        const fmt = std.fmt;
         const Self = @This();
 
         const NumOfChannels: comptime_int = capi.SEGGER_RTT_MAX_NUM_UP_BUFFERS;
