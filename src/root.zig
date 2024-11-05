@@ -13,12 +13,12 @@ pub fn Rtt() type {
 
         const NumOfUpChannels = config.up_channels;
         const NumOfDownChannels = config.down_channels;
+
         up_channels: [NumOfUpChannels]UpChannel = undefined,
         down_channels: [NumOfDownChannels]DownChannel = undefined,
 
         pub fn print(self: *const Self, comptime fmt_str: []const u8, args: anytype) void {
-            const writer = Writer{ .chan = &self.up_channels[0] };
-            fmt.format(writer, fmt_str, args) catch unreachable;
+            self.upChannel(0).print(fmt_str, args);
         }
 
         pub fn init() Self {
@@ -68,28 +68,19 @@ pub fn Rtt() type {
 
         const UpChannel = struct {
             chan_num: u32,
+            pub const Error = error{};
+            pub const Writer = std.io.Writer(UpChannel, Error, write);
+
+            fn write(self: UpChannel, bytes: []const u8) UpChannel.Error!usize {
+                return capi.SEGGER_RTT_Write(self.chan_num, bytes.ptr, bytes.len);
+            }
+
+            pub fn writer(self: UpChannel) Writer {
+                return .{ .context = self };
+            }
 
             pub fn print(self: *const UpChannel, comptime fmt_str: []const u8, args: anytype) void {
-                const writer = Writer{ .chan = self };
-                fmt.format(writer, fmt_str, args) catch unreachable;
-            }
-        };
-
-        const Writer = struct {
-            chan: *const UpChannel,
-
-            pub const Error = error{}; // infallible
-
-            pub fn writeAll(self: *const Writer, bytes: []const u8) Writer.Error!void {
-                _ = capi.SEGGER_RTT_Write(self.chan.chan_num, bytes.ptr, bytes.len);
-            }
-
-            pub fn writeBytesNTimes(
-                self: Writer,
-                bytes: []const u8,
-                n: usize,
-            ) Writer.Error!void {
-                for (0..n) |_| self.writeAll(bytes) catch unreachable;
+                fmt.format(self.writer(), fmt_str, args) catch unreachable;
             }
         };
     };
