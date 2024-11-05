@@ -27,9 +27,9 @@ pub fn Rtt() type {
             return self;
         }
 
-        pub fn channel(self: *const Self, comptime num: comptime_int) *Channel {
+        pub fn channel(self: *const Self, comptime num: comptime_int) *const Channel {
             comptime std.debug.assert(num < NumOfChannels);
-            return &self.channles[num];
+            return &self.channels[num];
         }
 
         pub fn rttInit(_: Self) void {
@@ -39,7 +39,7 @@ pub fn Rtt() type {
         const Channel = struct {
             chan_num: u32,
 
-            pub fn print(self: Channel, comptime fmt_str: []const u8, args: anytype) void {
+            pub fn print(self: *const Channel, comptime fmt_str: []const u8, args: anytype) void {
                 const writer = Writer{ .chan = self };
                 fmt.format(writer, fmt_str, args) catch unreachable;
             }
