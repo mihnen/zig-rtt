@@ -67,18 +67,12 @@ pub fn myLogFn(
     comptime format: []const u8,
     args: anytype,
 ) void {
-    const RTT_CTRL_RESET = "\x1B[0m";
-    const RTT_CTRL_TEXT_RED = "\x1B[2;31m";
-    const RTT_CTRL_TEXT_GREEN = "\x1B[2;32m";
-    const RTT_CTRL_TEXT_YELLOW = "\x1B[2;33m";
-    const RTT_CTRL_TEXT_BLUE = "\x1B[2;34m";
-
     const level_prefix = "[" ++ switch (level) {
-        .debug => RTT_CTRL_TEXT_BLUE,
-        .warn => RTT_CTRL_TEXT_YELLOW,
-        .err => RTT_CTRL_TEXT_RED,
-        .info => RTT_CTRL_TEXT_GREEN,
-    } ++ comptime level.asText() ++ RTT_CTRL_RESET ++ "] ";
+        .debug => rtt.ctrl().TEXT_BLUE,
+        .warn => rtt.ctrl().TEXT_YELLOW,
+        .err => rtt.ctrl().TEXT_RED,
+        .info => rtt.ctrl().TEXT_GREEN,
+    } ++ comptime level.asText() ++ rtt.ctrl().RESET ++ "] ";
 
     const scope_prefix = switch (scope) {
         std.log.default_log_scope => "",
