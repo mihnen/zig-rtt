@@ -89,6 +89,26 @@ pub fn myLogFn(
 }
 ```
 
+### Accessing channels other than the default channel 0
+
+If you need to access a channel other than the default they can be accesssed using the
+upChannel and downChannel functions. It is a compile time error to try and access a channel
+above what you have configured at build time.
+
+```zig
+rtt.upChannel(1).print("hello\n", .{});
+```
+
+### Accessing std.io.Reader or std.io.Writer
+
+You can access standard library compatible Reader/Writer interfaces using the methods
+on the appropriate upChannel (Writer) or downChannel (Reader)
+
+```zig
+const writer = rtt.upChannel(0).writer();
+const reader = rtt.downChannel(0).reader();
+```
+
 ### Licensing
 
 * This project is licensed under MIT (https://opensource.org/license/mit).

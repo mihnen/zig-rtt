@@ -7,8 +7,6 @@ pub const capi = @cImport({
 
 pub fn Rtt() type {
     return struct {
-        const debug = std.debug;
-        const fmt = std.fmt;
         const Self = @This();
 
         const NumOfUpChannels = config.up_channels;
@@ -82,7 +80,7 @@ pub fn Rtt() type {
             }
 
             pub fn print(self: *const UpChannel, comptime fmt_str: []const u8, args: anytype) void {
-                fmt.format(self.writer(), fmt_str, args) catch unreachable;
+                std.fmt.format(self.writer(), fmt_str, args) catch unreachable;
             }
         };
     };
