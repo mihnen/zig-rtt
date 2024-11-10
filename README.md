@@ -12,8 +12,9 @@ Please note this project is in no way affliated with Segger.
 
 ### Dependencies
 
-* Zig (https://ziglang.org/).
-* Segger RTT library (https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
+* [Zig](https://ziglang.org/).
+* [Gatz](https://github.com/haydenridd/gcc-arm-to-zig)
+* [Segger RTT library](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
 
 ### Using with a Zig application
 
@@ -32,11 +33,30 @@ const zig_rtt_dep = b.dependency("zig_rtt", .{
 exe.root_module.addImport("zig_rtt", zig_rtt_dep.module("zig_rtt"));
 ```
 
-In your build.zig.zon file. This assumes you have cloned this repo under src/lib/zig-rtt.
+Add the following to your build.zig.zon file.
 
 ```zig
 .dependencies = .{
-    .cmsis_rtos = .{
+    .gatz = .{
+        .url = "git+https://github.com/haydenridd/gcc-arm-to-zig#ff5d2dfb03149981237a16d5e93b8c39224f318a",
+        .hash = "122079adf4c3bf1082b907ea8438096c50c193fa3224ea590dd0c7d3eff1d405c3de",
+    },
+    .zig_rtt = .{
+        .url = "https://github.com/mihnen/zig-rtt/archive/refs/tags/v0.0.1-alpha.tar.gz",
+        .hash = "1220628faea28be1953c5bbe29c2882467a5dc1ac62ffdc6d30d255478b1b6d6a08e",
+    },
+},
+```
+
+If you are working with a local copy then use .path instead of .url/.hash
+
+```zig
+.dependencies = .{
+    .gatz = .{
+        .url = "git+https://github.com/haydenridd/gcc-arm-to-zig#ff5d2dfb03149981237a16d5e93b8c39224f318a",
+        .hash = "122079adf4c3bf1082b907ea8438096c50c193fa3224ea590dd0c7d3eff1d405c3de",
+    },
+    .zig_rtt = .{
         .path = "src/lib/zig-rtt",
     },
 },
