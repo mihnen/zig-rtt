@@ -99,7 +99,7 @@ pub fn Rtt() type {
             fn read(self: DownChannel, buf: []u8) DownChannel.Error!usize {
                 const nbytes = capi.SEGGER_RTT_Read(self.chan_num, buf.ptr, buf.len);
 
-                if (nbytes > 0) {
+                if (nbytes >= 0) {
                     return nbytes;
                 }
 
